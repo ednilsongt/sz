@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio Neo | En Vivo 24/7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .radio-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px 30px;
+            width: 380px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .logo {
+            width: 150px; height: 150px; margin: 0 auto 20px;
+            background: #fff; border-radius: 50%;
+            overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .logo img { width: 100%; height: 100%; object-fit: cover; }
+        h1 { font-size: 28px; margin-bottom: 8px; }
+        .frequency { font-size: 16px; color: #00ffcc; margin-bottom: 25px; font-weight: 500; }
+        .now-playing {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px; border-radius: 12px;
+            margin-bottom: 25px; min-height: 70px;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .track-title { font-size: 18px; font-weight: 600; margin-bottom: 5px; }
+        .artist { font-size: 14px; color: #00ffcc; }
+        .status { font-size: 14px; margin-bottom: 20px; opacity: 0.8; }
+        .controls { display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 20px; }
+        .play-btn {
+            width: 80px; height: 80px; background: #00ffcc; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0, 255, 204, 0.4);
+        }
+        .play-btn:hover { transform: scale(1.1); box-shadow: 0 15px 40px rgba(0, 255, 204, 0.6); }
+        .play-btn i { font-size: 36px; color: #000; margin-left: 4px; }
+        .volume-container { display: flex; align-items: center; gap: 10px; }
+        input[type="range"] {
+            -webkit-appearance: none; width: 120px; height: 6px;
+            background: rgba(255,255,255,0.3); border-radius: 5px; outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 18px; height: 18px;
+            background: #00ffcc; border-radius: 50%; cursor: pointer;
+        }
+        .loading {
+            display: inline-block; width: 20px; height: 20px;
+            border: 3px solid rgba(0,255,255,0.3); border-radius: 50%;
+            border-top-color: #00ffcc; animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        footer { margin-top: 30px; font-size: 12px; opacity: 0.7; }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<div class="radio-container">
+    <!-- Cambia esta imagen por el logo real de tu radio -->
+    <div class="logo">
+        <img src="https://i.ibb.co/Zzp5xyF2/1762272249940.jpg" alt="Radio Neto">
+    </div>
+
+    <h1>RADIO NEO</h1>
+    <div class="frequency">En Vivo 24/7</div>
+
+    <div class="now-playing">
+        <div class="track-title" id="title">Conectando...</div>
+        <div class="artist" id="artist">-</div>
+    </div>
+
+    <div class="status" id="status">Presiona play para escuchar</div>
+
+    <div class="controls">
+        <div class="play-btn" id="playBtn">
+            <i class="fas fa-play"></i>
+        </div>
+
+        <div class="volume-container">
+            <i class="fas fa-volume-up"></i>
+            <input type="range" min="0" max="100" value="80" id="volume">
+        </div>
+    </div>
+
+    <footer>© 2025 Radio Neo - artistas emergentes</footer>
+</div>
+
+<audio id="radioStream" preload="none" crossorigin="anonymous"></audio>
+
+<script>
+    // TU LINK REAL DE ZENO.FM (ya está puesto)
+    const streamUrl = "https://stream.zeno.fm/onblcbrafb5vv.aac";
+
+    const audio = document.getElementById('radioStream');
+    const playBtn = document.getElementById('playBtn');
+    const titleEl = document.getElementById('title');
+    const artistEl = document.getElementById('artist');
+    const statusEl = document.getElementById('status');
+    const volumeSlider = document.getElementById('volume');
+
+    let isPlaying = false;
+    audio.src = streamUrl;
+
+    // Play / Pause
+    playBtn.addEventListener('click', () => {
+        if (isPlaying) {
+            audio.pause();
+        } else {
+            audio.play().catch(e => {
+                statusEl.textContent = "Error al conectar";
+                console.error(e);
+            });
+        }
+    });
+
+    // Estados
+    audio.addEventListener('playing', () => {
+        isPlaying = true;
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        statusEl.textContent = "En vivo";
+    });
+
+    audio.addEventListener('pause', () => {
+        isPlaying = false;
+        playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        statusEl.textContent = "Pausado";
+    });
+
+    audio.addEventListener('waiting', () => {
+        statusEl.innerHTML = '<span class="loading"></span> Conectando...';
+    });
+
+    audio.addEventListener('error', () => {
+        statusEl.textContent = "Error de conexión";
+    });
+
+    // Volumen
+    volumeSlider.addEventListener('input', (e) => {
+        audio.volume = e.target.value / 100;
+    });
+
+    // METADATA EN VIVO (perfecto para Zeno.fm)
+    setInterval(() => {
+        if (!isPlaying) return;
+
+        fetch("https://api.zeno.fm/mounts/metadata/nowplaying/onblcbrafb5vv", { method: "GET" })
+            .then(r => r.json())
+            .then(data => {
+                if (data && data.title) {
+                    const full = data.title;
+                    const separator = full.includes(" - ") ? " - " : " – ";
+                    const parts = full.split(separator);
+                    const artist = parts.length > 1 ? parts[0].trim() : "";
+                    const title = parts.length > 1 ? parts.slice(1).join(separator).trim() : full;
+
+                    titleEl.textContent = title || "En directo";
+                    artistEl.textContent = artist || "LOS SZ";
+                }
+            })
+            .catch(() => {
+                // fallback por si falla la API
+                titleEl.textContent = "En directo";
+                artistEl.textContent = "RADIO NEO";
+            });
+    }, 7000);
+
+    // Primera carga
+    titleEl.textContent = "Cargando...";
+</script>
+
+</body>
+</html>
